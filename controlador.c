@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <string.h>
-#include "infonombre.h"
-
-#define MAXNUMSIZE 10//Max size of the number we want to read
+#include "common.h"
 
 int main(int argc, char *argv[]) {
     int cp[2], gp[2];
@@ -42,8 +34,7 @@ int main(int argc, char *argv[]) {
 
     /*Creates the generator*/
      if((genpid = fork()) == 0){
-            close(1);
-            dup(gp[1]);
+            dup2(gp[1], PIPE_NOMBRES_WRITE);
             close(gp[0]);
             close(gp[1]);
             if(execlp("./generador", "generador", number, NULL) == -1){
@@ -64,10 +55,8 @@ int main(int argc, char *argv[]) {
     /*Creates the calculators*/
     for (int i = 0; i < numCalculators; ++i) {
         if((contpids[i] = fork()) == 0){
-                close(0);
-                dup(gp[0]);
-                close(1);
-                dup(cp[1]);
+                dup2(gp[0], PIPE_NOMBRES_READ);
+                dup2(cp[1], PIPE_RESPOSTES_WRITE);
                 close(gp[1]);
                 close(gp[0]);
                 close(cp[1]);
@@ -85,8 +74,7 @@ int main(int argc, char *argv[]) {
 
 
     /*Duplicates the calculators pipe entry and closes the remaining descriptors*/
-    close(0);
-    dup(cp[0]);
+    dup2(cp[0], PIPE_RESPOSTES_READ);
     close(gp[0]);
     close(gp[1]);
     close(cp[0]);
@@ -95,7 +83,7 @@ int main(int argc, char *argv[]) {
     /*Treat the results*/
     t_infoNombre infon;
     char buffer[100];
-    for(int i = 0; read(0, &infon, sizeof(t_infoNombre)) != 0; ++i) {
+    for(int i = 0; read(PIPE_RESPOSTES_READ, &infon, sizeof(t_infoNombre)) != 0; ++i) {
         sprintf(buffer, "Pid del procés calculador: %5d, Nombre a calcular: %4d, Es primer? %2c\n", infon.pid, infon.nombre, infon.primer);
         write(1, buffer, strlen(buffer));
         if(infon.primer == 'S'){

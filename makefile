@@ -5,13 +5,13 @@ all: controlador.c generador.c calculador.c
 	gcc generador.c -o generador $(FLAGS)
 	gcc calculador.c -o calculador $(FLAGS)
 
-controlador: controlador.c infonombre.h
+controlador: controlador.c common.h
 	gcc -I controlador.c -o controlador -I . $(FLAGS)
 
-generador: generador.c
+generador: generador.c common.h
 	gcc generador.c -o generador $(FLAGS)
 	
-calculador: calculador.c infonombre.h
+calculador: calculador.c common.h
 	gcc -I calculador.c -o calculador -I . $(FLAGS)
 
 clean:

@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <string.h>
-#include "infonombre.h"
-#define MAXNUMSIZE 10
+#include "common.h"
 
 int isprime(long);
 void sighandler(int);
@@ -17,7 +10,7 @@ int main(int argc, char *argv[]) {
     results.pid = getpid();
     
     /*Reads every number, calculates and write the results*/
-    while(read(0, &number, sizeof(int)) != 0) {
+    while(read(PIPE_NOMBRES_READ, &number, sizeof(int)) != 0) {
         results.nombre = number;
         if(isprime(number)){
             numprimes += 1;
@@ -25,13 +18,13 @@ int main(int argc, char *argv[]) {
         }else{
             results.primer = 'N';
         }
-        if(write(1, &results, sizeof(t_infoNombre)) == -1){
+        if(write(PIPE_RESPOSTES_WRITE, &results, sizeof(t_infoNombre)) == -1){
             perror("Error writing into the pipe: ");
             exit(-1);
         }
     }
-    close(1);
-    close(0);
+    close(PIPE_RESPOSTES_WRITE);
+    close(PIPE_NOMBRES_READ);
     signal(SIGTERM, sighandler);
     pause();
 }

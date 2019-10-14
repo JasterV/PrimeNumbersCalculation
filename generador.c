@@ -1,22 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <string.h>
-
-void sighandler(int);
+#include "common.h"
 
 int main(int argc, char *argv[]) {
     int number = atoi(argv[1]);
     for (int i = 2; i <= number; ++i) {
-        write(1, &i, sizeof(int));
+        if(write(PIPE_NOMBRES_WRITE, &i, sizeof(int)) == -1){
+            perror("Error writing the generator numbers.");
+            exit(-1);
+        }
     }
-
-    close(1);
-    signal(SIGTERM, sighandler);
+    close(PIPE_NOMBRES_WRITE);
+    signal(SIGTERM, exit);
     pause();
 }
 
-void sighandler(int signum){
-    exit(0);
-}
