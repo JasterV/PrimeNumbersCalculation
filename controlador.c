@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     close(cp[0]);
     close(cp[1]);
 
-    /*Treat the results*/
+    /*Treat the response and print the result*/
     t_infoNumber infon;
     char buffer[100];
     while(read(PIPE_RESPONSES_READ, &infon, sizeof(t_infoNumber)) > 0) 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     }
 
     int status = 0;
-    /*Send the signals*/
+    /*Sends SIGTERM to generator*/
     if(kill(genpid, SIGTERM) == -1)
     {
         perror("Error closing generator: ");
@@ -123,24 +123,33 @@ int main(int argc, char *argv[])
 
     for(int i = 0; i < num_calculators; ++i) 
     {
+        /*Sends SIGTERM to calculator*/
         if (kill(contpids[i], SIGTERM) == -1) 
         {
             perror("Error closing calculator: ");
             exit(EXIT_FAILURE);
         }
         wait(&status);
+
+        /*Checks if the child exited normally*/
         if(WIFEXITED(status))
         {
             prime_numbers_exit += WEXITSTATUS(status);
         }
+        else
+        {
+            perror("Error on calculador exit: ");
+            exit(EXIT_FAILURE);
+        }
     }
 
+    /*Show the number of primes detected*/
     sprintf(buffer, "\nPrime numbers pipe: %d, \t Prime numbers exit: %d\n", prime_numbers_pipe, prime_numbers_exit);
     if(write(1, buffer, strlen(buffer)) == -1)
     {
         perror("Error writing standart out: ");
         exit(EXIT_FAILURE);
     }
-
+    
     exit(EXIT_SUCCESS);
 }
