@@ -12,6 +12,8 @@
 
 #define MAXNUMSIZE 10
 
+enum boolean {false, true};
+
 typedef struct{
     int pid;
     int number;
