@@ -10,6 +10,13 @@ Víctor Martínez Montané
 /*Writes numbers from 2 to n into the numbers pipe*/
 int main(int argc, char *argv[]) 
 {
+    /*Wait for SIGTERM signal and exit*/
+    if(signal(SIGTERM, SIG_DFL) == SIG_ERR)
+    {
+        perror("Signal: ");
+        exit(EXIT_FAILURE);
+    }
+    
     int number = atoi(argv[1]);
     /*Generate and write the numbers*/
     for (int i = 2; i <= number; ++i) 
@@ -21,12 +28,6 @@ int main(int argc, char *argv[])
         }
     }
     close(PIPE_NUMBERS_WRITE);
-    /*Wait for SIGTERM signal and exit*/
-    if(signal(SIGTERM, SIG_DFL) == SIG_ERR)
-    {
-        perror("Signal: ");
-        exit(EXIT_FAILURE);
-    }
     pause();
 }
 
