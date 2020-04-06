@@ -16,6 +16,12 @@ int numprimes = 0;
     and send the result to the response pipe*/
 int main(int argc, char *argv[]) 
 {
+     if(signal(SIGTERM, sighandler) == SIG_ERR)
+    {
+        perror("Signal: ");
+        exit(EXIT_FAILURE);
+    }
+    
     int number;
     t_infoNumber results;
     results.pid = getpid();
@@ -39,11 +45,6 @@ int main(int argc, char *argv[])
     /*Close the pipes and wait for SIGTERM signal*/
     close(PIPE_RESPONSES_WRITE);
     close(PIPE_NUMBERS_READ);
-    if(signal(SIGTERM, sighandler) == SIG_ERR)
-    {
-        perror("Signal: ");
-        exit(EXIT_FAILURE);
-    }
     pause();
 }
 
