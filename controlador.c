@@ -7,7 +7,7 @@ Víctor Martínez Montané
 
 #include "common.h"
 
-/*Creates one generator thread and multiple calculator threads.
+/*Creates one generator process and multiple calculator process.
     Reads the reponses pipe and print the results*/
 int main(int argc, char *argv[]) 
 {
